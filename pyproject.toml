@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "revbydesign-docs"
-version = "1.0.1"
+version = "1.1.0"
 description = "The shared RevByDesign design layer for MkDocs Material documentation sites."
 readme = "README.md"
 requires-python = ">=3.9"
@@ -30,4 +30,4 @@ where = ["src"]
 # The stylesheet is data, not code, so it needs saying explicitly or a wheel
 # ships a plugin that references a file it did not include.
 [tool.setuptools.package-data]
-revbydesign_docs = ["skin/css/*.css", "skin/js/*.js"]
+revbydesign_docs = ["skin/css/*.css", "skin/js/*.js", "skin/fonts/*.woff2"]

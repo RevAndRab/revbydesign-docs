@@ -68,6 +68,19 @@ CSS_URI = "assets/revbydesign/revbydesign.css"
 JS_SOURCE = os.path.join(SKIN_DIR, "js", "sidebar-mode.js")
 JS_URI = "assets/revbydesign/sidebar-mode.js"
 
+FONT_DIR = os.path.join(SKIN_DIR, "fonts")
+
+#: Served beside the stylesheet, because the @font-face rules reference them
+#: relative to it -- `url("fonts/plex-sans-400.woff2")` resolves against the CSS
+#: file, not the page, so it works at any page depth without knowing the site's
+#: base URL.
+FONT_FILES = (
+    "plex-sans-400.woff2",
+    "plex-sans-500.woff2",
+    "plex-sans-600.woff2",
+    "plex-mono-400.woff2",
+)
+
 
 class SkinConfig(Config):
     """Options, all of which have a working default.
@@ -86,6 +99,12 @@ class SkinConfig(Config):
 
     #: Where the footer line points.
     home = c.Type(str, default="https://revbydesign.studio/")
+
+    #: Ship the self-hosted IBM Plex files. Off only for a site that provides
+    #: the faces itself; turning it off without doing that leaves the
+    #: @font-face rules pointing at nothing and the site falls back to the
+    #: system stack.
+    fonts = c.Type(bool, default=True)
 
     #: Add the sidebar mode control to the header: normal -> wide -> focus.
     #: On by default because two of the three sites already shipped it and the
@@ -148,5 +167,15 @@ class RevByDesignPlugin(BasePlugin[SkinConfig]):
             files.append(
                 File.generated(config, JS_URI, abs_src_path=JS_SOURCE)
             )
+
+        if self.config.css and self.config.fonts:
+            for name in FONT_FILES:
+                files.append(
+                    File.generated(
+                        config,
+                        f"assets/revbydesign/fonts/{name}",
+                        abs_src_path=os.path.join(FONT_DIR, name),
+                    )
+                )
 
         return files

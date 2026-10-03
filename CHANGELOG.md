@@ -52,3 +52,37 @@ further down that only showed up on a real page.
   it behaves identically on all three sites whatever each enables — and
   degrades to the plain word on GitHub, where the generated sites' source
   READMEs are also read.
+
+## v1.1.0 — 2026-10-03
+
+**The documentation no longer fetches anything from Google.**
+
+`theme.font` does not host fonts — it emits a stylesheet link to
+`fonts.googleapis.com`. All three documentation sites were making that request
+on every page load, on an estate that self-hosts IBM Plex specifically so there
+is no third-party font request and no consent question (revbydesign.studio
+D006, D029). The documentation had been quietly undoing that decision.
+
+- IBM Plex Sans 400/500/600 and IBM Plex Mono 400 now ship with this package,
+  Latin subsets, the same four `woff2` files revbydesign.studio serves. Each
+  site serves them from its own origin, so there is no cross-origin request
+  either — pointing the docs at revbydesign.studio would have swapped one extra
+  connection for another and made them depend on the marketing site staying up.
+- Sites set `theme.font: false` and this package supplies `--md-text-font` and
+  `--md-code-font`.
+- **Code is now IBM Plex Mono, not JetBrains Mono.** This reverses what the
+  docs audit recommended. The audit was right that JetBrains is a better code
+  face and that changing it touches every code block on three sites — but that
+  was reasoning about a change with no benefit. Self-hosting gives it one:
+  keeping JetBrains means obtaining and redistributing a second font family for
+  a face difference nobody asked for, when the parent brand already runs Plex
+  Mono and typography is explicitly something that should carry across.
+- The 600 face covers weights 600–700, so Material's bold headings get a real
+  semibold rather than a synthesised one.
+- There is no italic face, so `<em>` is synthesised — which is already how
+  revbydesign.studio behaves, so this matches the house rather than degrading
+  from it.
+
+Not done: the full SIL OFL 1.1 licence text is not in this repository. The
+licence requires it to accompany redistributed fonts, and it is also missing
+from revbydesign.studio's `public/fonts/`. See `skin/fonts/README.md`.

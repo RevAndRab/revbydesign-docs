@@ -37,6 +37,86 @@
    ========================================================================= */
 
 /* ----------------------------------------------------------------------------
+   0. Typography, self-hosted
+   ----------------------------------------------------------------------------
+   `theme.font` is set to `false` on every site, because Material's font option
+   does not host anything -- it emits a stylesheet link to
+   fonts.googleapis.com, which every documentation page was then fetching on
+   every load.
+
+   That is a third-party request on a site that went to deliberate trouble to
+   avoid one. revbydesign.studio self-hosts IBM Plex precisely so there is no
+   third-party font request and no cookie or consent implication (D006, D029),
+   and the documentation was quietly undoing that on three sites.
+
+   Same four files, same Latin subsets, served from each documentation site's
+   own origin so there is no cross-origin request either -- not even to
+   revbydesign.studio, which would have swapped one extra connection for
+   another and made the docs depend on the marketing site staying up.
+
+   TWO THINGS THAT CHANGED, BOTH DELIBERATE
+
+   Code is now IBM Plex Mono rather than JetBrains Mono. The docs audit said to
+   keep JetBrains -- a better code face, and changing it touches every code
+   block on three sites. Self-hosting changes that calculus: keeping it means
+   obtaining and redistributing a second font family, for a face difference
+   nobody has asked for, when the parent brand already runs Plex Mono and
+   typography is explicitly on the list of things that should carry across.
+   One family, four files, and the docs now set type exactly as the site does.
+
+   There is no italic face, so `<em>` is synthesised by the browser. That is
+   already how revbydesign.studio behaves -- it self-hosts no italics either --
+   so this matches the house rather than degrading from it. Adding real italics
+   is two more files whenever anyone decides the oblique is not good enough.
+
+   Weights are 400, 500 and 600. Material asks for 700 in headings and strong
+   text; the 600 face is declared to cover 600-700 rather than letting the
+   browser synthesise a bold from it, because a synthetic bold on Plex is
+   noticeably worse than a real semibold.
+   ------------------------------------------------------------------------- */
+
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/plex-sans-400.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('fonts/plex-sans-500.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 600 700;
+  font-display: swap;
+  src: url('fonts/plex-sans-600.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/plex-mono-400.woff2') format('woff2');
+}
+
+/* Material composes `--md-text-font-family` from these with a system fallback
+   stack behind it, so a reader who never receives the woff2 still gets
+   something sensible rather than Times. With `theme.font: false` Material
+   leaves both unset, which is why they are set here. */
+:root {
+  --md-text-font: 'IBM Plex Sans';
+  --md-code-font: 'IBM Plex Mono';
+}
+
+/* ----------------------------------------------------------------------------
    1. The product accent
    ----------------------------------------------------------------------------
    A site declares its own accent in `docs/css/product.css`, which the plugin
@@ -424,8 +504,14 @@
   margin-top: 1.2rem;
 }
 
+/* Material sets h1 to weight 300. There is no 300 face here -- three weights
+   are enough for documentation and a fourth is another file on every page load
+   -- so the browser would quietly round it to 400. Stated explicitly instead,
+   because a weight that lands by fallback is a weight nobody chose, and 400 is
+   the right one anyway: this brand does not do thin display type. */
 [data-md-color-scheme='rbd-light'] .md-typeset h1,
 [data-md-color-scheme='rbd-dark'] .md-typeset h1 {
+  font-weight: 400;
   letter-spacing: -0.025em;
 }
 
