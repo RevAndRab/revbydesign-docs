@@ -131,6 +131,78 @@ def pill(css: str, scheme: str, modifier: str):
     return parse_hex(colour.group(1)), ((int(r), int(g), int(b)), float(a))
 
 
+# --- code highlighting ------------------------------------------------------
+
+#: The six Material defines on `:root` in terms of properties a scheme overrides.
+#: A var() inside a custom property is substituted where it is DECLARED, so these
+#: resolve against `:root`'s light-mode values and inherit down as literals --
+#: overriding what they point at does nothing. Every scheme must restate them.
+#: Leaving them out made code unreadable in dark mode on three published sites:
+#: identifiers at #36464e and comments at rgba(0,0,0,0.54) on a near-black block.
+DERIVED_HL = (
+    "--md-code-hl-name-color",
+    "--md-code-hl-operator-color",
+    "--md-code-hl-punctuation-color",
+    "--md-code-hl-comment-color",
+    "--md-code-hl-generic-color",
+    "--md-code-hl-variable-color",
+)
+
+
+def declarations(css: str, scheme: str) -> dict:
+    """Every `--name: value;` in one scheme block, values unresolved."""
+    found = {}
+    for name, value in re.findall(r"(--[a-z0-9-]+):\s*([^;]+);", scheme_block(css, scheme)):
+        found[name] = value.strip()
+    return found
+
+
+def resolve(decls: dict, value: str):
+    """Follow `var(--x)` through the block until a hex falls out.
+
+    Two hops is all this palette ever needs -- `--md-code-hl-name-color` ->
+    `--md-code-fg-color` -> `--rbd-text` -> a hex. Resolving it rather than
+    hardcoding the destination means renaming a token cannot leave this check
+    quietly measuring the old one.
+    """
+    for _ in range(6):
+        value = value.strip()
+        if value.startswith("#"):
+            return parse_hex(value)
+        m = re.match(r"var\(\s*(--[a-z0-9-]+)", value)
+        if not m or m.group(1) not in decls:
+            return None
+        value = decls[m.group(1)]
+    return None
+
+
+def code_tokens(css: str, scheme: str):
+    """(code background, {property: rgb}) for every highlight colour declared."""
+    decls = declarations(css, scheme)
+
+    missing = [d for d in DERIVED_HL if d not in decls]
+    if missing:
+        raise AssertionError(
+            f"{scheme} does not restate {missing}. Material declares these on :root in terms of "
+            "properties this scheme overrides, so they will resolve against its light defaults "
+            "and inherit as literals. This is the bug that made code blocks unreadable."
+        )
+
+    background = resolve(decls, decls["--md-code-bg-color"])
+    tokens = {}
+    for name, value in decls.items():
+        # `--md-code-hl-color` and its --light variant are the *background* of a
+        # highlighted line, not a token colour, so the 4.5:1 text bar does not
+        # apply to them. Everything else under this prefix is text.
+        if name == "--md-code-hl-color" or name.endswith("--light"):
+            continue
+        if name.startswith("--md-code-hl-"):
+            rgb = resolve(decls, value)
+            if rgb is not None:
+                tokens[name] = rgb
+    return background, tokens
+
+
 # --- the audit -------------------------------------------------------------
 
 
@@ -197,6 +269,14 @@ def main() -> int:
 
         # The SKU pill is the inverted neutral: page colour on text colour.
         check(f"{tag:<5} pill--sku          inverted", bg, t["--rbd-text"])
+
+        # Syntax highlighting is text on the code surface, so it is held to the
+        # same 4.5:1 as prose. `code_tokens` raises outright if a scheme has
+        # stopped restating the derived six.
+        code_bg, highlights = code_tokens(css, scheme)
+        for name in sorted(highlights):
+            label = name.replace("--md-code-hl-", "").replace("-color", "")
+            check(f"{tag:<5} code {label:<14} on code bg", highlights[name], code_bg)
 
     failures = 0
     for label, ratio, need, fail in results:

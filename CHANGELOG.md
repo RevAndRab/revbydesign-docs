@@ -86,3 +86,36 @@ D006, D029). The documentation had been quietly undoing that decision.
 Not done: the full SIL OFL 1.1 licence text is not in this repository. The
 licence requires it to accompany redistributed fonts, and it is also missing
 from revbydesign.studio's `public/fonts/`. See `skin/fonts/README.md`.
+
+## v1.1.1 — 2026-10-03
+
+**Code blocks were unreadable in dark mode on all three published sites.** A
+regression introduced by v1.0.0 and shipped by me; spotted by Colin on a
+Cookbook page.
+
+Material defines six of its syntax-highlighting properties on `:root` in terms
+of other properties — `--md-code-hl-name-color: var(--md-code-fg-color)`, and
+five more pointing at `--md-default-fg-color--light`. A `var()` inside a custom
+property is substituted **where it is declared**, not where it is used. So
+overriding `--md-code-fg-color` in a scheme block on `<body>` does nothing for
+them: they had already resolved against `:root`'s light-mode values and
+inherited down as literals.
+
+On the near-black code surface that meant identifiers at `#36464e` — about
+1.6:1 — and comments, punctuation and operators at `rgba(0, 0, 0, 0.54)`, which
+is black on black. Keywords and strings came through fine, which is why it read
+as "most of the code is missing" rather than "the stylesheet is broken".
+Material's own `slate` scheme restates all six for exactly this reason; v1.0.0
+copied its six literal colours and dropped the six derived ones.
+
+- Both schemes now restate all six.
+- Both schemes now state **every** highlight colour explicitly rather than
+  inheriting any of Material's. A palette that is half stated and half
+  inherited is one nobody can check, and that is what this bug was.
+- Four light-mode colours are a point or two darker than Material ships them.
+  On this scheme's `#f2f2f0` code surface its own values measure 4.40–4.47:1,
+  just under AA — and syntax highlighting is text. One to two percent of
+  lightness, hue untouched.
+- `checks/contrast.py` now measures every code token against its scheme's code
+  background, and fails outright if a scheme stops restating the derived six.
+  74 checks, up from 50. It would have caught this.

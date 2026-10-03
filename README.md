@@ -37,7 +37,7 @@ extra_css:
 
 ```txt
 # requirements.txt
-revbydesign-docs @ git+https://github.com/RevAndRab/revbydesign-docs@v1.1.0
+revbydesign-docs @ git+https://github.com/RevAndRab/revbydesign-docs@v1.1.1
 ```
 
 ```css

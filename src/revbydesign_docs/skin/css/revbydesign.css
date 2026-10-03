@@ -208,6 +208,46 @@
   --md-code-fg-color: var(--rbd-text);
   --md-code-bg-color: var(--rbd-bg-sunken);
 
+  /* Material's own light-scheme highlighting, restated rather than inherited.
+     These are its `:root` values and they are good ones -- tuned for a light
+     code surface, and this scheme's is light. They are written out because
+     inheriting Material's defaults is precisely what broke the dark scheme
+     below, and a palette that is half stated and half inherited is a palette
+     nobody can check. Every highlight colour on both schemes now lives here,
+     which is what lets checks/contrast.py measure them. */
+  --md-code-hl-color: #4287ff;
+  --md-code-hl-color--light: rgba(66, 135, 255, 0.1);
+  /* Four of these are a point or two darker than Material ships them. On this
+     scheme's #f2f2f0 code surface its own values measure 4.40-4.47:1 -- just
+     under AA for text, and syntax highlighting is text. The shift is one to two
+     percent of lightness, hue untouched, and takes them all past 4.6:1.
+     Measured, not nudged by eye; checks/contrast.py holds them there. */
+  --md-code-hl-number-color: #d12929;
+  --md-code-hl-special-color: #d41354;
+  --md-code-hl-function-color: #a344b3;
+  --md-code-hl-constant-color: #6e59d9;
+  --md-code-hl-keyword-color: #3a6ac3;
+  --md-code-hl-string-color: #1c7d4d;
+
+  /* THESE SIX MUST BE RE-DECLARED IN EVERY SCHEME. Material defines them on
+     `:root` as `var(--md-code-fg-color)` and `var(--md-default-fg-color--light)`
+     -- both of which this scheme overrides. A `var()` inside a custom property
+     is substituted where that property is *declared*, not where it is used, so
+     Material's versions resolve against `:root`'s light-mode values and inherit
+     down as literals. Overriding the thing they point at does nothing.
+
+     Leaving them out is what made code unreadable in dark mode on all three
+     sites: identifiers came through at #36464e and comments, punctuation and
+     operators at rgba(0,0,0,0.54) -- black on a near-black code block, around
+     1.6:1. Material's own `slate` re-declares all six for exactly this reason.
+     `checks/contrast.py` now fails if any of them goes missing again. */
+  --md-code-hl-name-color: var(--md-code-fg-color);
+  --md-code-hl-operator-color: var(--md-default-fg-color--light);
+  --md-code-hl-punctuation-color: var(--md-default-fg-color--light);
+  --md-code-hl-comment-color: var(--md-default-fg-color--light);
+  --md-code-hl-generic-color: var(--md-default-fg-color--light);
+  --md-code-hl-variable-color: var(--md-default-fg-color--light);
+
   --md-typeset-table-color: var(--rbd-line);
   --md-typeset-mark-color: color-mix(in srgb, var(--rbd-accent) 18%, transparent);
   --md-typeset-kbd-color: var(--rbd-bg-sunken);
@@ -297,6 +337,25 @@
   --md-code-hl-constant-color: #9383e2;
   --md-code-hl-keyword-color: #6791e0;
   --md-code-hl-string-color: #2fb170;
+
+  /* THESE SIX MUST BE RE-DECLARED IN EVERY SCHEME. Material defines them on
+     `:root` as `var(--md-code-fg-color)` and `var(--md-default-fg-color--light)`
+     -- both of which this scheme overrides. A `var()` inside a custom property
+     is substituted where that property is *declared*, not where it is used, so
+     Material's versions resolve against `:root`'s light-mode values and inherit
+     down as literals. Overriding the thing they point at does nothing.
+
+     Leaving them out is what made code unreadable in dark mode on all three
+     sites: identifiers came through at #36464e and comments, punctuation and
+     operators at rgba(0,0,0,0.54) -- black on a near-black code block, around
+     1.6:1. Material's own `slate` re-declares all six for exactly this reason.
+     `checks/contrast.py` now fails if any of them goes missing again. */
+  --md-code-hl-name-color: var(--md-code-fg-color);
+  --md-code-hl-operator-color: var(--md-default-fg-color--light);
+  --md-code-hl-punctuation-color: var(--md-default-fg-color--light);
+  --md-code-hl-comment-color: var(--md-default-fg-color--light);
+  --md-code-hl-generic-color: var(--md-default-fg-color--light);
+  --md-code-hl-variable-color: var(--md-default-fg-color--light);
 }
 
 /* ----------------------------------------------------------------------------
