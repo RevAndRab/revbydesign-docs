@@ -143,12 +143,20 @@
 }
 
 /* ----------------------------------------------------------------------------
-   2. Light — the landing scheme
+   2. Light
    ----------------------------------------------------------------------------
-   Light first, deliberately, and not a drift from the main site being dark
-   first. Documentation is read on work machines in daylight, and the three
-   sites already agreed on landing light so that a reader moving between them
-   does not get a different scheme on each. That decision is kept.
+   Neither scheme is "the landing scheme" any more. Each site declares both with
+   a `media:` key, so the reader's operating system decides and dark is the
+   fallback when it states no preference — which is exactly what
+   revbydesign.studio does, measured rather than assumed: dark OS gives a
+   near-black page, light OS gives this one.
+
+   That reverses the original reasoning, which was that all three documentation
+   sites should land light so a reader moving between them never saw the scheme
+   change. The goal was right and the mechanism was too narrow: following the OS
+   keeps all three agreeing with each other *and* with the site, instead of
+   agreeing with each other while disagreeing with the thing they are
+   documentation for. See revbydesign.studio `docs/decisions.md` D054.
 
    This is RevByDesign's real light mode from tokens.css, not a bleached
    version of the dark one.

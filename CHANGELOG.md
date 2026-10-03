@@ -170,3 +170,16 @@ without looking at what the site used.
 `@font-face` rules can actually serve, including range syntax. Asking for an
 unservable weight now fails the run and names the line. Verified in both
 directions — it passes clean, and it fails on a planted `font-weight: 300`.
+
+## v1.1.4 — 2026-10-03
+
+Comment only; no shipped behaviour changes. The scheme comments said light was
+"the landing scheme", which stopped being true when the three sites moved to
+following the reader's operating system. See revbydesign.studio D054.
+
+Records the finding that cost the time: two value-keyed palette entries do not
+make Material follow the OS. It reads the media once at load via `findIndex`
+and thereafter only listens for `change` on the radio inputs, so a light-OS
+reader is served whichever entry happens to be first. The mechanism that works
+is a third entry with a bare `(prefers-color-scheme)` and no value, which
+Material resolves at runtime. Verified in a browser in both directions.
