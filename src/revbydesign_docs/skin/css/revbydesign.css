@@ -1,0 +1,581 @@
+/* ============================================================================
+   RevByDesign — documentation skin
+   ----------------------------------------------------------------------------
+   One stylesheet, consumed by every RevByDesign documentation site through the
+   `revbydesign` MkDocs plugin. Replaces the ~690 lines that were copied by hand
+   into three repositories and had already drifted in three directions.
+
+   THE CONTRACT
+
+   This file configures Material for MkDocs through its *public* custom
+   property API (`--md-*`). It does not reach into Material's internal class
+   names for colour, and it uses `!important` nowhere. That is the whole point:
+   `--md-default-bg-color` is documented and stable, and
+   `.md-nav__item--active > .md-nav__link::before` is neither. The layer this
+   replaces targeted the second kind in about forty places, which is why three
+   floating Material versions across the estate was a live risk rather than an
+   untidy one.
+
+   Material declares its defaults on `:root` as well as on
+   `[data-md-color-scheme=default]`, so anything this file does not set falls
+   back to a sane Material value instead of to nothing.
+
+   THE BRAND, STATED AS A STYLESHEET
+
+   RevByDesign supplies the structure; the product supplies the colour. Near
+   black, white, typography, spacing, hairlines. A 2px radius. No decorative
+   shadow. One accent per product, declared by that product and nowhere else.
+
+   Values are taken from revbydesign.studio's own `src/styles/tokens.css`; this
+   is the same palette, not an approximation of it.
+
+   WHAT IS DELIBERATELY NOT HERE
+
+   Nothing that makes documentation worse to use. Navigation, search, the table
+   of contents, admonitions, code blocks, tables, anchors and Material's
+   responsive behaviour are what MkDocs is good at and are left alone.
+   ========================================================================= */
+
+/* ----------------------------------------------------------------------------
+   1. The product accent
+   ----------------------------------------------------------------------------
+   A site declares its own accent in `docs/css/product.css`, which the plugin
+   loads *after* this file so it wins. Four values, no more:
+
+     :root {
+       --rbd-accent-light:     #2f6ba4;   accent on a light surface
+       --rbd-accent-dark:      #6e9fd4;   accent on a dark surface
+       --rbd-accent-ink-light: #ffffff;   text drawn *on* the light accent
+       --rbd-accent-ink-dark:  #07111c;   text drawn *on* the dark accent
+     }
+
+   Declaring nothing is a supported configuration, not a broken one: the
+   fallback below is the parent brand's own near-white / near-black, which is
+   what revbydesign.studio uses on pages that belong to the studio rather than
+   to a product. A site with no accent reads as achromatic and correct.
+   ------------------------------------------------------------------------- */
+
+:root {
+  --rbd-accent-light: #15161a;
+  --rbd-accent-dark: #e8e9ec;
+  --rbd-accent-ink-light: #fbfbfa;
+  --rbd-accent-ink-dark: #0d0e10;
+}
+
+/* ----------------------------------------------------------------------------
+   2. Light — the landing scheme
+   ----------------------------------------------------------------------------
+   Light first, deliberately, and not a drift from the main site being dark
+   first. Documentation is read on work machines in daylight, and the three
+   sites already agreed on landing light so that a reader moving between them
+   does not get a different scheme on each. That decision is kept.
+
+   This is RevByDesign's real light mode from tokens.css, not a bleached
+   version of the dark one.
+   ------------------------------------------------------------------------- */
+
+[data-md-color-scheme='rbd-light'] {
+  color-scheme: light;
+
+  --rbd-bg: #fbfbfa;
+  --rbd-bg-raised: #ffffff;
+  --rbd-bg-sunken: #f2f2f0;
+  --rbd-line: #e0e0dd;
+  --rbd-line-strong: #c4c4bf;
+  --rbd-text: #15161a;
+  --rbd-text-dim: #52565e;
+  /* Two steps darker than the main site's #6b6f77. At that value this lands
+     at 4.498:1 against the sunken surface -- the footer and code background --
+     which is a fail by two thousandths. Measured, not adjusted by eye. Same
+     call D028 made for the RevLearning Tools, in the other direction. */
+  --rbd-text-faint: #676b73;
+  --rbd-focus: #0a6fc2;
+
+  --rbd-accent: var(--rbd-accent-light);
+  --rbd-accent-ink: var(--rbd-accent-ink-light);
+
+  /* Surfaces */
+  --md-default-bg-color: var(--rbd-bg);
+  --md-default-bg-color--light: rgba(251, 251, 250, 0.7);
+  --md-default-bg-color--lighter: rgba(251, 251, 250, 0.3);
+  --md-default-bg-color--lightest: rgba(251, 251, 250, 0.12);
+
+  /* Text. --lightest is Material's hairline: dividers, table rules, borders. */
+  --md-default-fg-color: var(--rbd-text);
+  --md-default-fg-color--light: var(--rbd-text-dim);
+  --md-default-fg-color--lighter: var(--rbd-text-faint);
+  --md-default-fg-color--lightest: var(--rbd-line);
+
+  /* Primary is Material's *header background*, not its link colour. The header
+     is the page surface with a hairline under it, so primary is the surface. */
+  --md-primary-fg-color: var(--rbd-bg);
+  --md-primary-fg-color--light: var(--rbd-bg-raised);
+  --md-primary-fg-color--dark: var(--rbd-bg-sunken);
+  --md-primary-bg-color: var(--rbd-text);
+  --md-primary-bg-color--light: var(--rbd-text-dim);
+
+  /* Accent is hover and interaction. Links are set explicitly below, because
+     Material defaults `--md-typeset-a-color` to primary — which here is the
+     page background, and would have made every link invisible. */
+  --md-accent-fg-color: var(--rbd-accent);
+  --md-accent-fg-color--transparent: color-mix(in srgb, var(--rbd-accent) 10%, transparent);
+  --md-accent-bg-color: var(--rbd-accent-ink);
+  --md-accent-bg-color--light: var(--rbd-accent-ink);
+
+  --md-typeset-color: var(--rbd-text);
+  --md-typeset-a-color: var(--rbd-accent);
+
+  --md-code-fg-color: var(--rbd-text);
+  --md-code-bg-color: var(--rbd-bg-sunken);
+
+  --md-typeset-table-color: var(--rbd-line);
+  --md-typeset-mark-color: color-mix(in srgb, var(--rbd-accent) 18%, transparent);
+  --md-typeset-kbd-color: var(--rbd-bg-sunken);
+  --md-typeset-kbd-accent-color: var(--rbd-bg-raised);
+  --md-typeset-kbd-border-color: var(--rbd-line-strong);
+
+  --md-admonition-fg-color: var(--rbd-text);
+  --md-admonition-bg-color: var(--rbd-bg-raised);
+
+  --md-footer-fg-color: var(--rbd-text);
+  --md-footer-fg-color--light: var(--rbd-text-dim);
+  --md-footer-fg-color--lighter: var(--rbd-text-faint);
+  --md-footer-bg-color: var(--rbd-bg-sunken);
+  --md-footer-bg-color--dark: var(--rbd-bg-sunken);
+}
+
+/* ----------------------------------------------------------------------------
+   3. Dark
+   ------------------------------------------------------------------------- */
+
+[data-md-color-scheme='rbd-dark'] {
+  color-scheme: dark;
+
+  --rbd-bg: #0d0e10;
+  --rbd-bg-raised: #141518;
+  --rbd-bg-sunken: #090a0b;
+  --rbd-line: #26282d;
+  --rbd-line-strong: #3a3d44;
+  --rbd-text: #e8e9ec;
+  --rbd-text-dim: #a4a9b2;
+  --rbd-text-faint: #777c85;
+  --rbd-focus: #7cc4ff;
+
+  --rbd-accent: var(--rbd-accent-dark);
+  --rbd-accent-ink: var(--rbd-accent-ink-dark);
+
+  --md-default-bg-color: var(--rbd-bg);
+  --md-default-bg-color--light: rgba(13, 14, 16, 0.7);
+  --md-default-bg-color--lighter: rgba(13, 14, 16, 0.3);
+  --md-default-bg-color--lightest: rgba(13, 14, 16, 0.12);
+
+  --md-default-fg-color: var(--rbd-text);
+  --md-default-fg-color--light: var(--rbd-text-dim);
+  --md-default-fg-color--lighter: var(--rbd-text-faint);
+  --md-default-fg-color--lightest: var(--rbd-line);
+
+  --md-primary-fg-color: var(--rbd-bg);
+  --md-primary-fg-color--light: var(--rbd-bg-raised);
+  --md-primary-fg-color--dark: var(--rbd-bg-sunken);
+  --md-primary-bg-color: var(--rbd-text);
+  --md-primary-bg-color--light: var(--rbd-text-dim);
+
+  --md-accent-fg-color: var(--rbd-accent);
+  --md-accent-fg-color--transparent: color-mix(in srgb, var(--rbd-accent) 12%, transparent);
+  --md-accent-bg-color: var(--rbd-accent-ink);
+  --md-accent-bg-color--light: var(--rbd-accent-ink);
+
+  --md-typeset-color: var(--rbd-text);
+  --md-typeset-a-color: var(--rbd-accent);
+
+  --md-code-fg-color: var(--rbd-text);
+  --md-code-bg-color: var(--rbd-bg-sunken);
+
+  --md-typeset-table-color: var(--rbd-line);
+  --md-typeset-mark-color: color-mix(in srgb, var(--rbd-accent) 22%, transparent);
+  --md-typeset-kbd-color: var(--rbd-bg-raised);
+  --md-typeset-kbd-accent-color: var(--rbd-line);
+  --md-typeset-kbd-border-color: var(--rbd-line-strong);
+
+  --md-admonition-fg-color: var(--rbd-text);
+  --md-admonition-bg-color: var(--rbd-bg-raised);
+
+  --md-footer-fg-color: var(--rbd-text);
+  --md-footer-fg-color--light: var(--rbd-text-dim);
+  --md-footer-fg-color--lighter: var(--rbd-text-faint);
+  --md-footer-bg-color: var(--rbd-bg-sunken);
+  --md-footer-bg-color--dark: var(--rbd-bg-sunken);
+
+  /* Material's slate code highlighting, which is tuned for a dark surface.
+     A custom scheme inherits the light defaults from :root otherwise, and
+     #d52a2a on near-black is not readable. */
+  --md-code-hl-color: #4a8cff;
+  --md-code-hl-color--light: rgba(74, 140, 255, 0.1);
+  --md-code-hl-number-color: #e6695b;
+  --md-code-hl-special-color: #f06090;
+  --md-code-hl-function-color: #c973d9;
+  --md-code-hl-constant-color: #9383e2;
+  --md-code-hl-keyword-color: #6791e0;
+  --md-code-hl-string-color: #2fb170;
+}
+
+/* ----------------------------------------------------------------------------
+   4. Shadows become hairlines
+   ----------------------------------------------------------------------------
+   The studio's surfaces are separated by a line, not by a blur — the same
+   removal D028 made in the RevLearning Tools. Set to `none` these would be
+   wrong rather than restrained: z2 and z3 are what separate the search overlay
+   and dialogs from the page behind them, and a floating panel with no edge is
+   an accessibility problem, not a minimal one. So they become a 1px ring.
+   ------------------------------------------------------------------------- */
+
+[data-md-color-scheme='rbd-light'],
+[data-md-color-scheme='rbd-dark'] {
+  --md-shadow-z1: none;
+  --md-shadow-z2: 0 0 0 1px var(--rbd-line);
+  --md-shadow-z3: 0 0 0 1px var(--rbd-line-strong);
+}
+
+/* ----------------------------------------------------------------------------
+   5. Structure
+   ----------------------------------------------------------------------------
+   Everything below is shape rather than colour, and all of it is scoped to the
+   two schemes so that a site which has not opted in is untouched.
+   ------------------------------------------------------------------------- */
+
+[data-md-color-scheme='rbd-light'],
+[data-md-color-scheme='rbd-dark'] {
+  /* Deliberately almost square. The main site runs 2px everywhere. */
+  --rbd-radius: 2px;
+}
+
+/* Radius. Material rounds code blocks, tables, admonitions and details; the
+   brand does not. */
+[data-md-color-scheme='rbd-light'] .md-typeset pre > code,
+[data-md-color-scheme='rbd-dark'] .md-typeset pre > code,
+[data-md-color-scheme='rbd-light'] .md-typeset code,
+[data-md-color-scheme='rbd-dark'] .md-typeset code,
+[data-md-color-scheme='rbd-light'] .md-typeset .admonition,
+[data-md-color-scheme='rbd-dark'] .md-typeset .admonition,
+[data-md-color-scheme='rbd-light'] .md-typeset details,
+[data-md-color-scheme='rbd-dark'] .md-typeset details,
+[data-md-color-scheme='rbd-light'] .md-typeset .tabbed-set > .tabbed-content,
+[data-md-color-scheme='rbd-dark'] .md-typeset .tabbed-set > .tabbed-content,
+[data-md-color-scheme='rbd-light'] .md-search__form,
+[data-md-color-scheme='rbd-dark'] .md-search__form,
+[data-md-color-scheme='rbd-light'] .md-search__output,
+[data-md-color-scheme='rbd-dark'] .md-search__output {
+  border-radius: var(--rbd-radius);
+}
+
+/* The header is the page surface with a hairline under it, not a coloured bar.
+   `--md-primary-fg-color` already made it the right colour; this is the line. */
+[data-md-color-scheme='rbd-light'] .md-header,
+[data-md-color-scheme='rbd-dark'] .md-header {
+  box-shadow: none;
+  border-bottom: 1px solid var(--rbd-line);
+}
+
+[data-md-color-scheme='rbd-light'] .md-tabs,
+[data-md-color-scheme='rbd-dark'] .md-tabs {
+  border-bottom: 1px solid var(--rbd-line);
+}
+
+/* The current tab is marked with a hairline rather than a filled block, which
+   is how the main site marks its current nav item. */
+[data-md-color-scheme='rbd-light'] .md-tabs__link--active,
+[data-md-color-scheme='rbd-dark'] .md-tabs__link--active {
+  font-weight: 600;
+  opacity: 1;
+}
+
+/* The sidebar is divided from the content by a line, not by a fill. */
+[data-md-color-scheme='rbd-light'] .md-sidebar--primary,
+[data-md-color-scheme='rbd-dark'] .md-sidebar--primary {
+  border-right: 1px solid var(--rbd-line);
+}
+
+/* Nav density. Documentation lives or dies on how much of the tree is visible
+   at once; this is the one place the skin trades whitespace for information. */
+[data-md-color-scheme='rbd-light'] .md-nav__link,
+[data-md-color-scheme='rbd-dark'] .md-nav__link {
+  padding-top: 0.15rem;
+  padding-bottom: 0.15rem;
+}
+
+/* The current page in the sidebar: accent text and a hairline, no fill. */
+[data-md-color-scheme='rbd-light'] .md-nav__link--active,
+[data-md-color-scheme='rbd-dark'] .md-nav__link--active,
+[data-md-color-scheme='rbd-light'] .md-nav__item--active > .md-nav__link,
+[data-md-color-scheme='rbd-dark'] .md-nav__item--active > .md-nav__link {
+  color: var(--rbd-accent);
+  font-weight: 500;
+}
+
+/* Section headings carry a construction line, the way the main site's sections
+   do. Where a page already writes `---` before a heading — the source READMEs
+   do, because they are also read on GitHub — let the rule be the separator and
+   drop the border, so the spacing is even either way. */
+[data-md-color-scheme='rbd-light'] .md-typeset h2,
+[data-md-color-scheme='rbd-dark'] .md-typeset h2 {
+  margin-top: 2.2rem;
+  padding-top: 0.35rem;
+  border-top: 1px solid var(--rbd-line);
+  letter-spacing: -0.02em;
+}
+
+[data-md-color-scheme='rbd-light'] .md-typeset hr + h2,
+[data-md-color-scheme='rbd-dark'] .md-typeset hr + h2 {
+  border-top: none;
+  padding-top: 0;
+  margin-top: 1.2rem;
+}
+
+[data-md-color-scheme='rbd-light'] .md-typeset h1,
+[data-md-color-scheme='rbd-dark'] .md-typeset h1 {
+  letter-spacing: -0.025em;
+}
+
+/* Links in prose: the underline is the hairline, and it takes the accent on
+   hover. Lifted from the main site's `a` rule rather than reinvented. */
+[data-md-color-scheme='rbd-light'] .md-typeset a,
+[data-md-color-scheme='rbd-dark'] .md-typeset a {
+  text-decoration: underline;
+  text-decoration-color: var(--rbd-line-strong);
+  text-decoration-thickness: from-font;
+  text-underline-offset: 0.22em;
+  transition: text-decoration-color 120ms cubic-bezier(0.2, 0, 0.1, 1),
+    color 120ms cubic-bezier(0.2, 0, 0.1, 1);
+}
+
+[data-md-color-scheme='rbd-light'] .md-typeset a:hover,
+[data-md-color-scheme='rbd-dark'] .md-typeset a:hover {
+  text-decoration-color: var(--rbd-accent);
+}
+
+/* Headings own their anchor; it should not be underlined like prose. */
+[data-md-color-scheme='rbd-light'] .md-typeset .headerlink,
+[data-md-color-scheme='rbd-dark'] .md-typeset .headerlink,
+[data-md-color-scheme='rbd-light'] .md-typeset h1 a,
+[data-md-color-scheme='rbd-dark'] .md-typeset h1 a,
+[data-md-color-scheme='rbd-light'] .md-typeset h2 a,
+[data-md-color-scheme='rbd-dark'] .md-typeset h2 a,
+[data-md-color-scheme='rbd-light'] .md-typeset h3 a,
+[data-md-color-scheme='rbd-dark'] .md-typeset h3 a {
+  text-decoration: none;
+}
+
+/* Tables: hairline rules, square corners, no zebra fill. */
+[data-md-color-scheme='rbd-light'] .md-typeset table:not([class]),
+[data-md-color-scheme='rbd-dark'] .md-typeset table:not([class]) {
+  border: 1px solid var(--rbd-line);
+  border-radius: var(--rbd-radius);
+  box-shadow: none;
+}
+
+[data-md-color-scheme='rbd-light'] .md-typeset table:not([class]) th,
+[data-md-color-scheme='rbd-dark'] .md-typeset table:not([class]) th {
+  background: var(--rbd-bg-sunken);
+  font-weight: 600;
+}
+
+/* Admonitions keep Material's colour coding — nine types are in use across the
+   estate and recolouring them to the brand would delete the signal they carry.
+   Only the geometry changes: square, hairline, flat. */
+[data-md-color-scheme='rbd-light'] .md-typeset .admonition,
+[data-md-color-scheme='rbd-dark'] .md-typeset .admonition,
+[data-md-color-scheme='rbd-light'] .md-typeset details,
+[data-md-color-scheme='rbd-dark'] .md-typeset details {
+  box-shadow: none;
+  border-width: 1px;
+  border-left-width: 2px;
+}
+
+/* Focus. An accessibility feature, not decoration — kept, and retokenised to
+   the brand's focus colour, which is the one hue the frame is allowed. */
+[data-md-color-scheme='rbd-light'] :focus-visible,
+[data-md-color-scheme='rbd-dark'] :focus-visible {
+  outline: 2px solid var(--rbd-focus);
+  outline-offset: 2px;
+}
+
+/* The footer provenance line the plugin supplies. */
+[data-md-color-scheme='rbd-light'] .md-copyright .rbd-home,
+[data-md-color-scheme='rbd-dark'] .md-copyright .rbd-home {
+  color: var(--rbd-footer-link, var(--md-footer-fg-color));
+  text-decoration: underline;
+  text-decoration-color: var(--rbd-line-strong);
+  text-underline-offset: 0.2em;
+}
+
+[data-md-color-scheme='rbd-light'] .md-copyright .rbd-home:hover,
+[data-md-color-scheme='rbd-dark'] .md-copyright .rbd-home:hover {
+  text-decoration-color: var(--rbd-accent);
+}
+
+/* ----------------------------------------------------------------------------
+   6. Semantic pills
+   ----------------------------------------------------------------------------
+   The one place documentation is allowed to be more colourful than the main
+   site, and the only place colour is allowed to carry meaning.
+
+   Three categories, because three are what the estate actually distinguishes:
+
+     Runtime        ships into a player build
+     Editor         editor-only, never in a build
+     Complete only  available in the Complete package and no single-system SKU
+
+   Written with attr_list, which all three sites already enable:
+
+     [Runtime]{.pill .pill--runtime}
+     [Editor]{.pill .pill--editor}
+     [Complete only]{.pill .pill--sku}
+
+   Rules this set is built to, in order of importance:
+
+   1. COLOUR IS NEVER THE CARRIER. Every pill states its meaning in words. A
+      reader who cannot distinguish the hues loses reinforcement, not
+      information — which is also why these are not icons.
+   2. The pills do not borrow a product accent. Accent means *whose* this is;
+      a pill means *what* this is. Sharing a hue between the two would make
+      both weaker, and on a site whose accent happened to match, the pill would
+      read as decoration.
+   3. `Complete only` is a constraint rather than a category — it tells a
+      reader that what they own will not run this — so it is drawn in the
+      brand's own inverted neutral rather than given a hue of its own. It
+      should read as emphatic, not as a third colour.
+   4. Inline in a sentence, and wrapping on a phone, before anything else.
+      `white-space: nowrap` on the pill with normal wrapping around it keeps a
+      two-word label from breaking across lines mid-pill.
+
+   Add a fourth only when something has asked for it twice.
+   ------------------------------------------------------------------------- */
+
+[data-md-color-scheme='rbd-light'] .md-typeset .pill,
+[data-md-color-scheme='rbd-dark'] .md-typeset .pill {
+  display: inline-block;
+  vertical-align: baseline;
+  font-family: var(--md-code-font-family, monospace);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.5;
+  padding: 0.05em 0.5em;
+  border: 1px solid currentcolor;
+  border-radius: var(--rbd-radius);
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+/* A pill is frequently the first thing on a line in a table cell or after a
+   heading; it should not inherit prose underlining if it is inside a link. */
+[data-md-color-scheme='rbd-light'] .md-typeset a .pill,
+[data-md-color-scheme='rbd-dark'] .md-typeset a .pill {
+  text-decoration: none;
+}
+
+/* Runtime — teal. */
+[data-md-color-scheme='rbd-light'] .md-typeset .pill--runtime {
+  color: #0b5c67;
+  background: rgba(13, 111, 124, 0.08);
+}
+
+[data-md-color-scheme='rbd-dark'] .md-typeset .pill--runtime {
+  color: #68cfdd;
+  background: rgba(79, 196, 212, 0.12);
+}
+
+/* Editor — violet. */
+[data-md-color-scheme='rbd-light'] .md-typeset .pill--editor {
+  color: #653c88;
+  background: rgba(111, 68, 147, 0.08);
+}
+
+[data-md-color-scheme='rbd-dark'] .md-typeset .pill--editor {
+  color: #c49ee0;
+  background: rgba(185, 142, 214, 0.12);
+}
+
+/* Complete only — the brand's inverted neutral. A constraint, not a category.
+   Maximum contrast, no hue, and it cannot collide with any product accent. */
+[data-md-color-scheme='rbd-light'] .md-typeset .pill--sku {
+  color: var(--rbd-bg);
+  background: var(--rbd-text);
+  border-color: var(--rbd-text);
+}
+
+[data-md-color-scheme='rbd-dark'] .md-typeset .pill--sku {
+  color: var(--rbd-bg);
+  background: var(--rbd-text);
+  border-color: var(--rbd-text);
+}
+
+/* A row of pills under a heading, rather than inline in a sentence. Wraps, and
+   keeps the vertical rhythm when it does. */
+[data-md-color-scheme='rbd-light'] .md-typeset .pills,
+[data-md-color-scheme='rbd-dark'] .md-typeset .pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.6rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ----------------------------------------------------------------------------
+   7. Print
+   ----------------------------------------------------------------------------
+   A pill that is only a background colour disappears on a monochrome printer.
+   The border survives, so it keeps one.
+   ------------------------------------------------------------------------- */
+
+@media print {
+  .md-typeset .pill {
+    background: none;
+    color: inherit;
+    border-color: currentcolor;
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   8. Sidebar modes
+   ----------------------------------------------------------------------------
+   Drives the control in `skin/js/sidebar-mode.js`: normal, wide (table of
+   contents only) and focus (neither sidebar). A reading affordance rather than
+   a brand decision, so unlike everything above it is not scoped to the two
+   schemes — a site that takes the plugin but keeps its own palette still gets
+   a working control. Only the engaged colour is scheme-aware.
+
+   `display: none` rather than a width transition, deliberately: Material lays
+   the sidebars out with position and media queries, and animating them open
+   fights the sticky table of contents. These selectors are specific enough to
+   win without `!important`, which is what the previous copy of this used.
+   ------------------------------------------------------------------------- */
+
+body.sidebar-wide .md-sidebar--primary,
+body.sidebar-focus .md-sidebar--primary,
+body.sidebar-focus .md-sidebar--secondary {
+  display: none;
+}
+
+body.sidebar-wide .md-content {
+  padding-left: 2.5rem;
+  padding-right: 2.5rem;
+}
+
+body.sidebar-focus .md-content {
+  padding-left: 3rem;
+  padding-right: 3rem;
+}
+
+/* The control shows that it is engaged with a hairline, the way the main site
+   marks its current nav item. The id is `rf-`-prefixed for historical reasons
+   the script explains; it is kept so that readers do not lose a saved mode. */
+[data-md-color-scheme='rbd-light'] body.sidebar-wide .md-header__button#rf-sidebar-toggle,
+[data-md-color-scheme='rbd-light'] body.sidebar-focus .md-header__button#rf-sidebar-toggle,
+[data-md-color-scheme='rbd-dark'] body.sidebar-wide .md-header__button#rf-sidebar-toggle,
+[data-md-color-scheme='rbd-dark'] body.sidebar-focus .md-header__button#rf-sidebar-toggle {
+  border-bottom: 2px solid var(--rbd-accent);
+  border-radius: 0;
+}

@@ -1,0 +1,56 @@
+name: Checks
+
+# The stylesheet is the product here, so the two things worth gating are that
+# it still measures up and that the package still installs and loads. Both are
+# seconds; neither is a test written to make a count go up.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  contrast:
+    name: Contrast ratios
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
+      # No dependencies. The check reads the stylesheet and does the colour
+      # maths itself, which is why it can run before anything is installed.
+      - run: python checks/contrast.py
+
+  install:
+    name: Package installs and the plugin loads
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
+          cache: pip
+      - run: pip install .
+      # Entry point resolution is the thing that silently breaks: a site asking
+      # for `- revbydesign` gets "plugin not found" at build time, in the other
+      # repository, long after the commit that caused it.
+      - name: The entry point resolves
+        run: |
+          python - <<'PY'
+          from mkdocs.plugins import get_plugins
+          plugins = get_plugins()
+          assert "revbydesign" in plugins, sorted(plugins)
+          cls = plugins["revbydesign"].load()
+          assert cls.__name__ == "RevByDesignPlugin"
+          print("revbydesign ->", cls)
+          PY
+      - name: The stylesheet is in the installed package
+        run: |
+          python - <<'PY'
+          import os
+          from revbydesign_docs import plugin
+          assert os.path.isfile(plugin.CSS_SOURCE), plugin.CSS_SOURCE
+          print("stylesheet:", os.path.getsize(plugin.CSS_SOURCE), "bytes")
+          PY

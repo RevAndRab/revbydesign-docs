@@ -1,0 +1,219 @@
+"""Verifies the skin's contrast ratios by reading the stylesheet.
+
+Run with ``python checks/contrast.py``. Exits non-zero on a failure.
+
+This parses ``revbydesign.css`` rather than carrying its own copy of the
+values. A check with the hexes typed into it a second time verifies that
+someone can type, and goes stale the first time the stylesheet changes without
+it -- which is the same copy-and-drift failure this whole package exists to
+end. Change a colour in the stylesheet and this re-measures the new one.
+
+What it checks, and why each bar:
+
+  4.5:1  text against the surface it sits on (WCAG AA, normal text). Covers
+         body text, dimmed text, faint text, link colour for every product
+         accent, and each pill's label over its own wash.
+  3.0:1  the focus ring and the pill borders against the page (WCAG AA for
+         non-text that carries meaning). The focus ring is an accessibility
+         feature; a pill border is what survives when the wash does not, on a
+         monochrome printer or in forced-colors mode.
+
+Hairlines are measured and reported but not failed: a 1px rule that divides
+regions without conveying information is outside the non-text contrast
+requirement, and raising it to 3:1 would make the whole brand louder.
+"""
+
+from __future__ import annotations
+
+import re
+import sys
+from pathlib import Path
+
+CSS = (
+    Path(__file__).resolve().parent.parent
+    / "src"
+    / "revbydesign_docs"
+    / "skin"
+    / "css"
+    / "revbydesign.css"
+)
+
+# Every product accent that currently exists, read off revbydesign.studio's
+# src/styles/products.css. Only three have documentation sites today; the rest
+# are here so that a site added later is already known to pass.
+PRODUCT_ACCENTS = {
+    "revframework": ("#2f6ba4", "#6e9fd4"),
+    "snap-studio-pro": ("#8a5a06", "#e8a33d"),
+    "loggerpro": ("#257145", "#6fbf8f"),
+    "revdiagnostics": ("#0d6f7c", "#4fc4d4"),
+    "skint": ("#6f4493", "#b98ed6"),
+    "revlearning": ("#434fa3", "#7c8ce0"),
+    "revlearning-tools": ("#4e6e25", "#8fb85c"),
+    "moniker": ("#8f4621", "#d4845c"),
+    "orda": ("#962f1d", "#d25c45"),
+    "dizzy": ("#7d5f04", "#e0b63d"),
+}
+
+
+# --- colour ----------------------------------------------------------------
+
+
+def _channel(value: float) -> float:
+    value /= 255.0
+    return value / 12.92 if value <= 0.04045 else ((value + 0.055) / 1.055) ** 2.4
+
+
+def luminance(rgb) -> float:
+    r, g, b = (_channel(c) for c in rgb)
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+
+def parse_hex(value: str):
+    value = value.strip().lstrip("#")
+    if len(value) == 3:
+        value = "".join(c * 2 for c in value)
+    return tuple(int(value[i : i + 2], 16) for i in (0, 2, 4))
+
+
+def contrast(fg, bg) -> float:
+    a, b = luminance(fg), luminance(bg)
+    hi, lo = max(a, b), min(a, b)
+    return (hi + 0.05) / (lo + 0.05)
+
+
+def composite(fg, alpha: float, bg):
+    """Flatten a translucent fill onto an opaque surface."""
+    return tuple(alpha * f + (1 - alpha) * b for f, b in zip(fg, bg))
+
+
+# --- reading the stylesheet ------------------------------------------------
+
+
+def scheme_block(css: str, scheme: str) -> str:
+    """The body of the `[data-md-color-scheme='<scheme>'] { ... }` rule."""
+    start = css.index(f"[data-md-color-scheme='{scheme}'] {{")
+    end = css.index("\n}", start)
+    return css[start:end]
+
+
+def tokens(css: str, scheme: str) -> dict:
+    """The `--rbd-*` literal colours declared by one scheme."""
+    found = {}
+    for name, value in re.findall(
+        r"(--rbd-[a-z-]+):\s*(#[0-9a-fA-F]{3,6});", scheme_block(css, scheme)
+    ):
+        found[name] = parse_hex(value)
+    return found
+
+
+def pill(css: str, scheme: str, modifier: str):
+    """A pill's label colour and the wash it sits on, as written."""
+    rule = re.search(
+        r"\[data-md-color-scheme='"
+        + re.escape(scheme)
+        + r"'\] \.md-typeset \.pill--"
+        + re.escape(modifier)
+        + r"\s*\{(.*?)\}",
+        css,
+        re.S,
+    )
+    if rule is None:
+        raise AssertionError(f"no .pill--{modifier} rule for {scheme}")
+    body = rule.group(1)
+
+    colour = re.search(r"color:\s*(#[0-9a-fA-F]{3,6});", body)
+    wash = re.search(
+        r"background:\s*rgba\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)[,\s/]+([\d.]+)\s*\)", body
+    )
+    if colour is None or wash is None:
+        return None
+    r, g, b, a = wash.groups()
+    return parse_hex(colour.group(1)), ((int(r), int(g), int(b)), float(a))
+
+
+# --- the audit -------------------------------------------------------------
+
+
+def main() -> int:
+    css = CSS.read_text(encoding="utf8")
+
+    results = []
+
+    def check(label, fg, bg, need=4.5, fail=True):
+        results.append((label, contrast(fg, bg), need, fail))
+
+    for scheme in ("rbd-light", "rbd-dark"):
+        t = tokens(css, scheme)
+        missing = {
+            "--rbd-bg",
+            "--rbd-bg-sunken",
+            "--rbd-text",
+            "--rbd-text-dim",
+            "--rbd-text-faint",
+            "--rbd-focus",
+        } - t.keys()
+        if missing:
+            raise AssertionError(f"{scheme} is missing {sorted(missing)}")
+
+        bg, sunken = t["--rbd-bg"], t["--rbd-bg-sunken"]
+        tag = scheme.replace("rbd-", "")
+
+        # Body, dimmed and faint text, on both the page and the sunken surface
+        # the footer and code blocks use.
+        for name in ("--rbd-text", "--rbd-text-dim", "--rbd-text-faint"):
+            check(f"{tag:<5} {name:<18} on bg", t[name], bg)
+            check(f"{tag:<5} {name:<18} on sunken", t[name], sunken)
+
+        # The focus ring carries meaning, so 3:1 as non-text.
+        check(f"{tag:<5} focus ring         on bg", t["--rbd-focus"], bg, 3.0)
+
+        # Hairlines: measured, never failed. See the module docstring.
+        for name in ("--rbd-line", "--rbd-line-strong"):
+            check(f"{tag:<5} {name:<18} on bg", t[name], bg, 1.0, fail=False)
+
+        # Links take the product accent, so every accent has to clear AA as
+        # text -- including the achromatic fallback a site with none gets.
+        index = 0 if scheme == "rbd-light" else 1
+        for product, pair in PRODUCT_ACCENTS.items():
+            check(f"{tag:<5} link accent {product:<18}", parse_hex(pair[index]), bg)
+        check(
+            f"{tag:<5} link accent {'(no accent set)':<18}",
+            t["--rbd-text"],
+            bg,
+        )
+
+        # Pills: the label over its own wash, and the border against the page.
+        for modifier in ("runtime", "editor"):
+            got = pill(css, scheme, modifier)
+            if got is None:
+                raise AssertionError(f"could not read .pill--{modifier} for {scheme}")
+            label, (wash, alpha) = got
+            check(
+                f"{tag:<5} pill--{modifier:<12} label on wash",
+                label,
+                composite(wash, alpha, bg),
+            )
+            check(f"{tag:<5} pill--{modifier:<12} border on bg", label, bg, 3.0)
+
+        # The SKU pill is the inverted neutral: page colour on text colour.
+        check(f"{tag:<5} pill--sku          inverted", bg, t["--rbd-text"])
+
+    failures = 0
+    for label, ratio, need, fail in results:
+        ok = ratio >= need
+        if not ok and fail:
+            failures += 1
+            flag = "FAIL"
+        elif not ok:
+            flag = "note"
+        else:
+            flag = "ok  "
+        print(f"{flag} {ratio:6.2f}:1  (needs {need:4.1f})  {label}")
+
+    print()
+    print(f"{len(results)} checks, {failures} failing")
+    return 1 if failures else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

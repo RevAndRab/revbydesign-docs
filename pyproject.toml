@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "revbydesign-docs"
+version = "1.0.0"
+description = "The shared RevByDesign design layer for MkDocs Material documentation sites."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "RevByDesign" }]
+keywords = ["mkdocs", "mkdocs-plugin", "mkdocs-material", "documentation", "theme"]
+
+# Deliberately a floor, not a pin. This package is itself pinned by tag in each
+# site's requirements.txt, and that is where the Material version is decided.
+# Pinning Material here as well would mean two places disagreeing about it.
+dependencies = ["mkdocs>=1.6", "mkdocs-material>=9.6"]
+
+[project.urls]
+Homepage = "https://revbydesign.studio/"
+
+# The entry point is what lets a site write `- revbydesign` under `plugins:`.
+[project.entry-points."mkdocs.plugins"]
+revbydesign = "revbydesign_docs.plugin:RevByDesignPlugin"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+# The stylesheet is data, not code, so it needs saying explicitly or a wheel
+# ships a plugin that references a file it did not include.
+[tool.setuptools.package-data]
+revbydesign_docs = ["skin/css/*.css", "skin/js/*.js"]
