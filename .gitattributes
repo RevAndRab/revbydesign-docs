@@ -1,0 +1,4 @@
+# LF everywhere. This repository is consumed by three others and built on
+# Linux runners; a CRLF stylesheet would show up as a whole-file diff the first
+# time anyone edited it from Windows.
+* text=auto eol=lf
