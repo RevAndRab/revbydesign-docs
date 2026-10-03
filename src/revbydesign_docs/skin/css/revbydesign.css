@@ -249,6 +249,10 @@
   --md-code-hl-variable-color: var(--md-default-fg-color--light);
 
   --md-typeset-table-color: var(--rbd-line);
+  /* The table row hover wash. Material declares it on `:root` as a black 3.5%
+     tint, which is right here and wrong on a dark surface -- see the dark
+     scheme. Stated in both rather than inherited in one. */
+  --md-typeset-table-color--light: rgba(0, 0, 0, 0.035);
   --md-typeset-mark-color: color-mix(in srgb, var(--rbd-accent) 18%, transparent);
   --md-typeset-kbd-color: var(--rbd-bg-sunken);
   --md-typeset-kbd-accent-color: var(--rbd-bg-raised);
@@ -312,6 +316,11 @@
   --md-code-bg-color: var(--rbd-bg-sunken);
 
   --md-typeset-table-color: var(--rbd-line);
+  /* Hovering a table row must lighten it. Material's `:root` value is a black
+     3.5% tint, so inheriting it made the row very slightly *darker* than the
+     page on hover -- the right idea pointed the wrong way, and almost invisible
+     either way, which is how it survived. */
+  --md-typeset-table-color--light: color-mix(in srgb, var(--rbd-text) 5%, transparent);
   --md-typeset-mark-color: color-mix(in srgb, var(--rbd-accent) 22%, transparent);
   --md-typeset-kbd-color: var(--rbd-bg-raised);
   --md-typeset-kbd-accent-color: var(--rbd-line);
