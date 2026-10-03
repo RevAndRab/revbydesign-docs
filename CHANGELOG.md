@@ -171,7 +171,16 @@ without looking at what the site used.
 unservable weight now fails the run and names the line. Verified in both
 directions — it passes clean, and it fails on a planted `font-weight: 300`.
 
-## v1.1.4 — 2026-10-03
+## v1.1.4 — tagged in error, do not use
+
+Tagged against a commit that still carried version 1.1.3 and the uncorrected
+comment: a shell quoting fault made the edit fail while the commit, tag and push
+that followed it went ahead anyway. Nothing ever consumed it. Left in place
+rather than deleted, because a tag that has been pushed is not ours to quietly
+remove, and a gap in the sequence with a reason beside it is easier to trust
+than a tag that moved.
+
+## v1.1.5 — 2026-10-03
 
 Comment only; no shipped behaviour changes. The scheme comments said light was
 "the landing scheme", which stopped being true when the three sites moved to

@@ -145,11 +145,19 @@
 /* ----------------------------------------------------------------------------
    2. Light
    ----------------------------------------------------------------------------
-   Neither scheme is "the landing scheme" any more. Each site declares both with
-   a `media:` key, so the reader's operating system decides and dark is the
-   fallback when it states no preference — which is exactly what
-   revbydesign.studio does, measured rather than assumed: dark OS gives a
-   near-black page, light OS gives this one.
+   Neither scheme is "the landing scheme" any more. Each site declares three
+   palette entries, the first carrying a bare `(prefers-color-scheme)` with no
+   value — the one Material resolves at runtime against the reader's operating
+   system, and the only thing that makes any of this follow it.
+
+   Two value-keyed entries on their own do not work, which cost an hour to
+   establish. Material reads the media once at load through `findIndex` and
+   thereafter only listens for `change` on the radio inputs, so a light-OS
+   reader was served whichever entry happened to be listed first. Verified in a
+   browser in both directions rather than reasoned about.
+
+   The result matches revbydesign.studio, which follows the OS too: a dark
+   system gives a near-black page, a light one gives this.
 
    That reverses the original reasoning, which was that all three documentation
    sites should land light so a reader moving between them never saw the scheme
