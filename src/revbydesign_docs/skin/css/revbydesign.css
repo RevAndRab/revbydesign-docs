@@ -268,6 +268,52 @@
   border-radius: var(--rbd-radius);
 }
 
+/* Measure and shell.
+   ----------------------------------------------------------------------------
+   Carried over from the layer this replaces, where it was the first thing in
+   the file and was described as "Windmill-style width". It is kept because it
+   is a *density* decision rather than a decorative one, and density is the
+   thing the brief protects: Material's default centres a 61rem grid, which on
+   a 1440px screen leaves a reference table squeezed into two thirds of the
+   viewport with empty gutters either side.
+
+   The content column keeps a 1050px maximum so prose does not run to a
+   ridiculous measure, and sits left rather than centred so that the sidebar,
+   the content and the table of contents read as three columns instead of one
+   floating block. Material's own `!important` is not needed to win this; the
+   scheme attribute carries enough specificity on its own.
+   ------------------------------------------------------------------------- */
+
+[data-md-color-scheme='rbd-light'] .md-grid,
+[data-md-color-scheme='rbd-dark'] .md-grid,
+[data-md-color-scheme='rbd-light'] .md-main__inner,
+[data-md-color-scheme='rbd-dark'] .md-main__inner {
+  max-width: 100%;
+  margin: 0;
+}
+
+[data-md-color-scheme='rbd-light'] .md-content,
+[data-md-color-scheme='rbd-dark'] .md-content {
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+[data-md-color-scheme='rbd-light'] .md-content__inner,
+[data-md-color-scheme='rbd-dark'] .md-content__inner {
+  max-width: 1050px;
+  margin: 0;
+}
+
+/* The gutters are desktop figures. On a phone they eat a tenth of the screen
+   for nothing, and Material's own padding is already right there. */
+@media screen and (max-width: 76.1875em) {
+  [data-md-color-scheme='rbd-light'] .md-content,
+  [data-md-color-scheme='rbd-dark'] .md-content {
+    padding-left: 0.8rem;
+    padding-right: 0.8rem;
+  }
+}
+
 /* The header is the page surface with a hairline under it, not a coloured bar.
    `--md-primary-fg-color` already made it the right colour; this is the line. */
 [data-md-color-scheme='rbd-light'] .md-header,
@@ -287,6 +333,53 @@
 [data-md-color-scheme='rbd-dark'] .md-tabs__link--active {
   font-weight: 600;
   opacity: 1;
+}
+
+/* Search.
+   ----------------------------------------------------------------------------
+   Material derives the search field's fill from the primary colour. Primary is
+   now the page surface -- which is what makes the header a neutral band rather
+   than a coloured bar -- so the field came out exactly the same colour as the
+   header behind it and had no edge at all. Caught in the browser, not on
+   paper: the input was there and focusable, and simply invisible.
+
+   A sunken fill and a hairline, taking the accent when focused. This is the
+   one control in the header a reader has to be able to find. */
+[data-md-color-scheme='rbd-light'] .md-search__form,
+[data-md-color-scheme='rbd-dark'] .md-search__form {
+  background: var(--rbd-bg-sunken);
+  border: 1px solid var(--rbd-line);
+  box-shadow: none;
+}
+
+[data-md-color-scheme='rbd-light'] .md-search__form:hover,
+[data-md-color-scheme='rbd-dark'] .md-search__form:hover {
+  background: var(--rbd-bg-sunken);
+  border-color: var(--rbd-line-strong);
+}
+
+[data-md-color-scheme='rbd-light'] .md-search__input:focus ~ .md-search__icon,
+[data-md-color-scheme='rbd-dark'] .md-search__input:focus ~ .md-search__icon {
+  color: var(--rbd-accent);
+}
+
+[data-md-color-scheme='rbd-light'] .md-search__form:focus-within,
+[data-md-color-scheme='rbd-dark'] .md-search__form:focus-within {
+  border-color: var(--rbd-accent);
+}
+
+[data-md-color-scheme='rbd-light'] .md-search__input::placeholder,
+[data-md-color-scheme='rbd-dark'] .md-search__input::placeholder {
+  color: var(--rbd-text-faint);
+}
+
+/* The results panel floats over the page, so it needs a surface of its own and
+   the hairline that replaced Material's drop shadow. */
+[data-md-color-scheme='rbd-light'] .md-search__output,
+[data-md-color-scheme='rbd-dark'] .md-search__output {
+  background: var(--rbd-bg-raised);
+  border: 1px solid var(--rbd-line);
+  border-top: none;
 }
 
 /* The sidebar is divided from the content by a line, not by a fill. */
@@ -425,11 +518,23 @@
      Editor         editor-only, never in a build
      Complete only  available in the Complete package and no single-system SKU
 
-   Written with attr_list, which all three sites already enable:
+   Written as a raw span:
 
-     [Runtime]{.pill .pill--runtime}
-     [Editor]{.pill .pill--editor}
-     [Complete only]{.pill .pill--sku}
+     <span class="pill pill--runtime">Runtime</span>
+     <span class="pill pill--editor">Editor</span>
+     <span class="pill pill--sku">Complete only</span>
+
+   Raw HTML rather than attr_list, for two reasons that were both found by
+   trying it. Python-Markdown's attr_list does not support bare bracketed
+   spans at all -- `[Runtime]{.pill}` ships to the page as that literal text,
+   because `[Runtime]` is not an inline element for the attributes to attach
+   to. It works on strong, emphasis and code spans, none of which a status
+   badge is. And RevFramework's pages are generated from source READMEs that
+   are also read on GitHub, where a raw span degrades to the plain word while
+   `**Runtime**{.pill}` would show the braces.
+
+   A raw span also needs no markdown extension, so it behaves identically on
+   all three sites regardless of what each one enables.
 
    Rules this set is built to, in order of importance:
 

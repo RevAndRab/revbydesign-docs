@@ -37,7 +37,7 @@ extra_css:
 
 ```txt
 # requirements.txt
-revbydesign-docs @ git+https://github.com/RevAndRab/revbydesign-docs@v1.0.0
+revbydesign-docs @ git+https://github.com/RevAndRab/revbydesign-docs@v1.0.1
 ```
 
 ```css
@@ -83,13 +83,22 @@ across the estate, that was a live risk rather than an untidy one.
 The one place documentation is allowed more colour than the main site, and the
 only place colour carries meaning.
 
-```markdown
-[Runtime]{.pill .pill--runtime}        ships into a player build
-[Editor]{.pill .pill--editor}          editor-only, never in a build
-[Complete only]{.pill .pill--sku}      not available in a single-system SKU
+```html
+<span class="pill pill--runtime">Runtime</span>        <!-- ships into a player build -->
+<span class="pill pill--editor">Editor</span>          <!-- editor-only, never in a build -->
+<span class="pill pill--sku">Complete only</span>      <!-- not in a single-system SKU -->
 ```
 
-Requires `attr_list`, which every site already enables.
+A raw span, not `attr_list`. Python-Markdown's attr_list does not support bare
+bracketed spans — `[Runtime]{.pill}` reaches the page as that literal text,
+because `[Runtime]` is not an inline element for the attributes to attach to.
+It works on strong, emphasis and code spans, and a status badge is none of
+those.
+
+Raw HTML also needs no markdown extension, so it behaves the same on all three
+sites whatever each enables, and it degrades to the plain word on GitHub —
+which matters, because RevFramework's pages are generated from source READMEs
+that are read there too.
 
 Three categories, because three are what the estate actually distinguishes.
 **Add a fourth only when something has asked for it twice.**
