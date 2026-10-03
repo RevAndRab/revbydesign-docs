@@ -119,3 +119,22 @@ copied its six literal colours and dropped the six derived ones.
 - `checks/contrast.py` now measures every code token against its scheme's code
   background, and fails outright if a scheme stops restating the derived six.
   74 checks, up from 50. It would have caught this.
+
+## v1.1.2 — 2026-10-03
+
+**The table row hover pointed the wrong way in dark mode.**
+
+`--md-typeset-table-color--light` is the `tbody tr:hover` background. Material
+declares it on `:root` as a black 3.5% tint, which is right on a light page and
+backwards on a dark one — hovering a row made it very slightly *darker* than the
+page instead of lighter. The same class of bug as v1.1.1: a property declared on
+`:root` in terms of values a scheme overrides, inherited as a literal.
+
+Found by diffing the property list Material's own `slate` scheme declares
+against what `rbd-dark` declares — the generalised version of the check that
+should have caught v1.1.1. `slate` is precisely the set of things that have to
+change for a dark background, so anything in it and not in ours is a candidate.
+That diff now comes back clean apart from the three shadow properties, which
+this file sets in its own block rather than inside the scheme.
+
+Both schemes now state it. Nothing else changed.
