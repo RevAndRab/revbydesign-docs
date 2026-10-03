@@ -138,4 +138,10 @@ gates in front of them. Three small deliberate commits is the feature.
 
 ## Licence
 
-MIT.
+MIT — the stylesheet, the plugin and the checks.
+
+**Except the fonts.** `skin/fonts/*.woff2` are IBM Plex Sans and IBM Plex Mono,
+copyright © 2017, 2019 IBM Corp., under the [SIL Open Font License
+1.1](https://scripts.sil.org/OFL). Redistributed unmodified as Latin subsets.
+Their name tables carry the IBM copyright and the licence URL, so attribution
+travels with the files themselves rather than depending on anyone reading this.

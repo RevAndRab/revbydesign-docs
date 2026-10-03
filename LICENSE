@@ -1,3 +1,18 @@
+THE FONT FILES ARE NOT COVERED BY THIS LICENCE
+---------------------------------------------
+
+`src/revbydesign_docs/skin/fonts/*.woff2` are IBM Plex Sans and IBM Plex Mono,
+copyright (c) 2017, 2019 IBM Corp., licensed under the SIL Open Font License
+version 1.1: https://scripts.sil.org/OFL
+
+They are redistributed here unmodified, as Latin subsets. Their own name tables
+carry the IBM copyright notice and that licence URL, so the attribution travels
+with the files wherever they are served from.
+
+Everything else in this repository -- the stylesheet, the plugin, the checks --
+is MIT, as below.
+
+
 MIT License
 
 Copyright (c) 2026 RevByDesign

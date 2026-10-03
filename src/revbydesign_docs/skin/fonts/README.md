@@ -30,10 +30,24 @@ docs at the marketing site would have traded one extra connection for another
 and made the documentation stop setting type correctly whenever that site was
 unavailable.
 
-## Outstanding
+## Licence, and what is already satisfied
 
-**The full OFL 1.1 licence text is not in this repository.** The licence
-requires it to accompany redistributed fonts, and these files are redistributed
-both from here and from revbydesign.studio's `public/fonts/`, where it is also
-missing. One file, `OFL.txt`, copied from the IBM Plex repository, in both
-places.
+Checked rather than assumed. Every one of these four files carries, in its own
+OpenType name table:
+
+```
+Copyright     Copyright 2017 / 2019 IBM Corp. All rights reserved.
+License URL   http://scripts.sil.org/OFL
+```
+
+The OFL explicitly accepts machine-readable metadata inside the binary as a way
+of carrying the copyright notice, so that obligation is met by the files
+themselves, wherever they end up being served from. The root `LICENSE` and
+`README.md` say the same thing in prose, so the MIT licence on the rest of the
+package does not appear to claim them.
+
+**Optional, and deliberately not done:** the full OFL 1.1 *text* is not here —
+only the URL pointing at it. A strict reading of clause 2 wants the text
+alongside. It is one file, `OFL.txt` from the IBM Plex repository, if anyone
+ever wants the belt-and-braces version. The same is true of
+revbydesign.studio's own `public/fonts/`.
