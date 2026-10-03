@@ -138,3 +138,35 @@ That diff now comes back clean apart from the three shadow properties, which
 this file sets in its own block rather than inside the scheme.
 
 Both schemes now state it. Nothing else changed.
+
+## v1.1.3 — 2026-10-03
+
+**Heading weight now matches the site. Scale deliberately still does not.**
+
+Measured rather than assumed. revbydesign.studio sets h1–h4 to **600** in a
+single rule. Material runs 300 for h1 and h2, 400 for h3, 700 for h4 and h6 —
+three weights across four levels, with h4 heavier than h1. That is Material's
+design, where h4 and h6 act as small labels; against a brand where every heading
+is 600 it reads as noise.
+
+All six levels are now stated at 600. The *scale* is untouched: the site's 51px
+h1 and 19.2px body suit a page with a 68ch measure and air around it, and
+documentation needs the density Material's smaller scale gives it. Matching the
+weight and not the size is what "design consistency, not pixel matching" means
+in practice — the typographic character carries across, the information density
+stays.
+
+**This also closes a bug that had been shipping since v1.0.0.** v1.1.1 pinned h1
+because Material asked for 300, no 300 face is shipped, and the browser was
+quietly rounding it — then did not generalise. h2 went on asking for 300 and
+rounding to 400, so **h1 and h2 rendered at the same weight** and the heading
+hierarchy was carried by size alone.
+
+v1.1.1 also justified 400 as "the right one anyway". That was a guess made
+without looking at what the site used.
+
+`checks/contrast.py` gains a guard for the whole class: every numeric
+`font-weight` the stylesheet asks for is checked against what the shipped
+`@font-face` rules can actually serve, including range syntax. Asking for an
+unservable weight now fails the run and names the line. Verified in both
+directions — it passes clean, and it fails on a planted `font-weight: 300`.

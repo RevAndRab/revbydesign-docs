@@ -131,6 +131,30 @@ def pill(css: str, scheme: str, modifier: str):
     return parse_hex(colour.group(1)), ((int(r), int(g), int(b)), float(a))
 
 
+# --- font weights -----------------------------------------------------------
+
+def shipped_weights(css: str) -> set:
+    """Every weight an @font-face in this stylesheet can actually serve."""
+    served = set()
+    for value in re.findall(r"@font-face\s*\{[^}]*?font-weight:\s*([^;]+);", css, re.S):
+        parts = value.strip().split()
+        if len(parts) == 2:                      # a range, e.g. "600 700"
+            served.update(range(int(parts[0]), int(parts[1]) + 1, 100))
+        else:
+            served.add(int(parts[0]))
+    return served
+
+
+def declared_weights(css: str) -> dict:
+    """Numeric font-weights this stylesheet asks for, outside @font-face."""
+    without_faces = re.sub(r"@font-face\s*\{[^}]*\}", "", css, flags=re.S)
+    asked = {}
+    for m in re.finditer(r"font-weight:\s*(\d{3})\s*;", without_faces):
+        line = without_faces[: m.start()].count("\n") + 1
+        asked.setdefault(int(m.group(1)), []).append(line)
+    return asked
+
+
 # --- code highlighting ------------------------------------------------------
 
 #: The six Material defines on `:root` in terms of properties a scheme overrides.
@@ -290,8 +314,25 @@ def main() -> int:
             flag = "ok  "
         print(f"{flag} {ratio:6.2f}:1  (needs {need:4.1f})  {label}")
 
+    # A weight we ask for but cannot serve is silently rounded by the browser,
+    # which is how h1 and h2 came to render identically for two releases. Not a
+    # contrast question, so it is reported on its own rather than squeezed into
+    # a ratio column where a failure would have read as a statement of fact.
+    served = shipped_weights(css)
+    weights = declared_weights(css)
     print()
-    print(f"{len(results)} checks, {failures} failing")
+    for weight, lines in sorted(weights.items()):
+        where = ", ".join(str(l) for l in lines[:4])
+        if weight in served:
+            print(f"ok    font-weight {weight}  servable  (line {where})")
+        else:
+            failures += 1
+            print(f"FAIL  font-weight {weight}  NO @font-face can serve it  (line {where})")
+            print(f"      The browser rounds it silently. Ship the face, or ask for "
+                  f"one of {sorted(served)}.")
+
+    print()
+    print(f"{len(results) + len(weights)} checks, {failures} failing")
     return 1 if failures else 0
 
 

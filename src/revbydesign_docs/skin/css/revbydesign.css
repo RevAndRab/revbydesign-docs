@@ -572,14 +572,47 @@
   margin-top: 1.2rem;
 }
 
-/* Material sets h1 to weight 300. There is no 300 face here -- three weights
-   are enough for documentation and a fourth is another file on every page load
-   -- so the browser would quietly round it to 400. Stated explicitly instead,
-   because a weight that lands by fallback is a weight nobody chose, and 400 is
-   the right one anyway: this brand does not do thin display type. */
+/* Every heading weight, stated.
+   ----------------------------------------------------------------------------
+   Material runs 300 for h1 and h2, 400 for h3 and 700 for h4 and h6 -- three
+   weights across four levels, with h4 heavier than h1. That is Material's
+   design, where h4 and h6 act as small labels. Against a brand that sets every
+   heading at 600 it reads as noise.
+
+   revbydesign.studio sets h1, h2, h3 and h4 to 600 in one rule. This matches
+   it. The *scale* deliberately does not match -- the site's 51px h1 and 19.2px
+   body are right for a page with a 68ch measure and air around it, and
+   documentation needs the density Material's smaller scale gives it. Matching
+   the weight and not the size is what "design consistency, not pixel matching"
+   means in practice: the typographic character carries across, the information
+   density stays.
+
+   Stating all six also closes a bug this file had twice. v1.1.1 pinned h1
+   because Material asked for 300, there is no 300 face, and the browser was
+   quietly rounding it -- then did not generalise, so h2 went on asking for 300
+   and rounding to 400. h1 and h2 therefore rendered at the same weight and the
+   heading hierarchy was carried by size alone. A weight that lands by fallback
+   is a weight nobody chose, and the fix for one level was never the fix.
+
+   v1.1.1 also said 400 was "the right one anyway". That was a guess made
+   without looking at what the site used. It uses 600. */
+[data-md-color-scheme='rbd-light'] .md-typeset h1,
+[data-md-color-scheme='rbd-dark'] .md-typeset h1,
+[data-md-color-scheme='rbd-light'] .md-typeset h2,
+[data-md-color-scheme='rbd-dark'] .md-typeset h2,
+[data-md-color-scheme='rbd-light'] .md-typeset h3,
+[data-md-color-scheme='rbd-dark'] .md-typeset h3,
+[data-md-color-scheme='rbd-light'] .md-typeset h4,
+[data-md-color-scheme='rbd-dark'] .md-typeset h4,
+[data-md-color-scheme='rbd-light'] .md-typeset h5,
+[data-md-color-scheme='rbd-dark'] .md-typeset h5,
+[data-md-color-scheme='rbd-light'] .md-typeset h6,
+[data-md-color-scheme='rbd-dark'] .md-typeset h6 {
+  font-weight: 600;
+}
+
 [data-md-color-scheme='rbd-light'] .md-typeset h1,
 [data-md-color-scheme='rbd-dark'] .md-typeset h1 {
-  font-weight: 400;
   letter-spacing: -0.025em;
 }
 
